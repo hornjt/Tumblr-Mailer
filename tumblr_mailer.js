@@ -46,7 +46,6 @@ function buildContactArray(csvObject) {
 }
 
 function buildEmailEJS() {
-	
 	for (var i = 0; i < contactArray.length; i++) {
 		console.log(ejs.render(emailHTML,contactArray[i]));
 	};
@@ -69,8 +68,6 @@ function buildEmail_REPLACE_METHOD() {
 
 // Main function
 function main() {
-	//console.log(contactArray);
-	//buildEmail();
 	buildEmailEJS();
 	//return contactArray;
 }
