@@ -1,13 +1,10 @@
-var fs = require('fs');
-var contacts = require("./contact_constructors.js");
-var ejs = require('ejs');
-var csvFile = fs.readFileSync("./friend_list.csv").toString();
-var emailHTML = fs.readFileSync('./email_template.html', 'utf-8');
-// var getTemplate = require("./email_template.ejs");
-// var renderedTemplate = ejs.render(emailHTML);
-//console.log(renderedTemplate);
-var parsedCSV = csvParse(csvFile);
-var contactArray = buildContactArray(parsedCSV);
+var fs = require('fs'),
+contacts = require("./contact_constructors.js"),
+ejs = require('ejs'),
+csvFile = fs.readFileSync("./friend_list.csv").toString(),
+emailHTML = fs.readFileSync('./email_template.html', 'utf-8'),
+parsedCSV = csvParse(csvFile),
+contactArray = buildContactArray(parsedCSV);
 
 /*
 Will parse any CSV and return a parsed CSV Object
