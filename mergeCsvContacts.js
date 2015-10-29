@@ -1,7 +1,6 @@
 var contacts = require("./contact_constructors.js");
 http = require('http');
 
-
 /*
 Will parse any CSV and return a parsed CSV Object
 */
