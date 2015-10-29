@@ -7,7 +7,7 @@ mergeCsvContacts = require("./mergeCsvContacts");
 csvFile = fs.readFileSync("./friend_list.csv").toString(),
 emailTemplate = fs.readFileSync('./email_template.ejs', 'utf-8'),
 blogName = "atomicpizzarebel.tumblr.com",
-postURLs = [],
+postObjs = [],
 contactArray = [];
 
 // Imports Tumblr API
@@ -18,6 +18,7 @@ var client = tumblr.createClient({
 	token_secret: 'rbXofHQ3u56Pww9o4Rrq4Z73y4Umh5rfMs77fkR4ehyF9JaWuc'
 });
 
+// Retrieves posts with titles and URLs from Tumblr
 client.posts(blogName, function(err, data){
 	var postBodies = [];
 
@@ -27,17 +28,21 @@ client.posts(blogName, function(err, data){
 		for (var i = 0; i < data.posts.length; i++) {	
 			var daysSince = getTimeElapsed(data.posts[i].date);
 			if (daysSince <= 7) {
-				var recentPostsURLs = data.posts[i].short_url; 
-				var singlePost = data.posts[i].body.slice(3,-4);
-				postURLs.push(recentPostsURLs);
-				postBodies.push(singlePost);
+				var recentPosts = {
+					href: data.posts[i].short_url,
+					title: data.posts[i].title
+				};
+				postObjs.push(recentPosts);
+
+				// var singlePost = data.posts[i].body.slice(3,-4);
+				// postBodies.push(singlePost);
 			}
 		}
 	}
 
 	// Builds email list, appends each email, and gets Tumblr post URLs
 	// Executed at the end of Tumblr API for sync issues while constructing contact
-	contactArray = mergeCsvContacts.csvParse(csvFile, postURLs);
+	contactArray = mergeCsvContacts.csvParse(csvFile, postObjs);
 	var htmlList = buildEmailEJS();
 });
 
