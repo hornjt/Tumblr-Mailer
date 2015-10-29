@@ -17,6 +17,8 @@ function csvParse(file, posts) {
 
 	// Create CSV Object with parsed contact info
 	var csv = new contacts.CSVObject(header, splitLines);
+	//console.log(csv);
+	debugger;
 	return buildContactArray(csv, posts);
 }
 
@@ -39,6 +41,7 @@ function buildContactArray(csvObject, posts) {
 		// Add new contact to the contact array
 		newArray.push(contact);
 	};
+	debugger;
 	return newArray;
 }
 
