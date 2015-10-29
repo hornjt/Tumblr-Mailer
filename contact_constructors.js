@@ -3,6 +3,7 @@ function Contact(first, last, timeSince, email) {
 	this.lastName = last;
 	this.numMonthsSinceContact = timeSince;
 	this.emailAddress = email;
+	this.latestPosts = null;
 }
 
 function CSVObject(header, arrayOfContacts) {

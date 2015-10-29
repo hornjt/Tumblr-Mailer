@@ -1,4 +1,4 @@
-OAuth Consumer Key:
+Tumblr OAuth Consumer Key:
 OCFihagoU0ny5kMQmQf2wv1JCPYF2B3tzn0z92FL2ScA7QC3yH
 
 Secret Key:  wSAyV8clgavD0B568hQdsUIV8FbOMnn6h0JIdlsM6oDJYxMlqb
@@ -12,7 +12,5 @@ var client = tumblr.createClient({
   token_secret: 'rbXofHQ3u56Pww9o4Rrq4Z73y4Umh5rfMs77fkR4ehyF9JaWuc'
 });
 
-// Make the request
-client.userInfo(function (err, data) {
-    // ...
-});
+Mandrill Key 
+API Key 8BwPYDZ1tNOoLlKju5p2Yw created

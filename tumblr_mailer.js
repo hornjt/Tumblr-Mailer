@@ -1,76 +1,62 @@
 var fs = require('fs'),
-contacts = require("./contact_constructors.js"),
 ejs = require('ejs'),
+tumblr = require('tumblr.js'),
+contacts = require("./contact_constructors.js"),
+mandrill = require("./mandrillFuncs.js"),
+mergeCsvContacts = require("./mergeCsvContacts");
 csvFile = fs.readFileSync("./friend_list.csv").toString(),
-emailHTML = fs.readFileSync('./email_template.html', 'utf-8'),
-parsedCSV = csvParse(csvFile),
-contactArray = buildContactArray(parsedCSV);
+emailTemplate = fs.readFileSync('./email_template.ejs', 'utf-8'),
+blogName = "atomicpizzarebel.tumblr.com",
+postURLs = [],
+contactArray = [];
 
-/*
-Will parse any CSV and return a parsed CSV Object
-*/
-function csvParse(file) {
-	// Split each address line by line
-	var splitLines = file.split("\n");
+// Imports Tumblr API
+var client = tumblr.createClient({
+	consumer_key: 'OCFihagoU0ny5kMQmQf2wv1JCPYF2B3tzn0z92FL2ScA7QC3yH',
+	consumer_secret: 'wSAyV8clgavD0B568hQdsUIV8FbOMnn6h0JIdlsM6oDJYxMlqb',
+	token: 'COco5SgGolpXek4j1pjjzJRXhgl4q532rpfoqUMCKq1ZCJ89Dw',
+	token_secret: 'rbXofHQ3u56Pww9o4Rrq4Z73y4Umh5rfMs77fkR4ehyF9JaWuc'
+});
 
-	// Remove extra element from \n
-	splitLines.pop();
+client.posts(blogName, function(err, data){
+	var postBodies = [];
 
-	// Remove the header and save if needed later
-	var header = splitLines.shift().split(",");
+	if (err !== null) {
+		console.log(err);
+	} else {
+		for (var i = 0; i < data.posts.length; i++) {	
+			var daysSince = getTimeElapsed(data.posts[i].date);
+			if (daysSince <= 7) {
+				var recentPostsURLs = data.posts[i].short_url; 
+				var singlePost = data.posts[i].body.slice(3,-4);
+				postURLs.push(recentPostsURLs);
+				postBodies.push(singlePost);
+			}
+		}
+	}
 
-	// Create CSV Object with parsed contact info
-	var csv = new contacts.CSVObject(header, splitLines);
-	return csv;
-}
-
-/*
-Loops through a CSV Object and returns an array of objects
-*/
-function buildContactArray(csvObject) {
-	var newArray = [];
-
-	// Loop through the array of contacts
-	for (var i = 0; i < csvObject.arrayOfContacts.length; i++) {
-		// Parse the contact data
-		var contactInfo = csvObject.arrayOfContacts[i].split(",");
-		var contact = new contacts.Contact();
-		for (var j = 0; j < contactInfo.length; j++) {
-			// Add parsed data to new Contact
-			contact[csvObject.header[j]] = contactInfo[j];
-		};
-		// Add new contact to the contact array
-		newArray.push(contact);
-	};
-	return newArray;
-}
+	// Builds email list, appends each email, and gets Tumblr post URLs
+	// Executed at the end of Tumblr API for sync issues while constructing contact
+	contactArray = mergeCsvContacts.csvParse(csvFile, postURLs);
+	var htmlList = buildEmailEJS();
+});
 
 function buildEmailEJS() {
+	var htmlOut = [];
 	for (var i = 0; i < contactArray.length; i++) {
-		console.log(ejs.render(emailHTML,contactArray[i]));
+		htmlOut.push(ejs.render(emailTemplate,contactArray[i]));
 	};
+	fs.writeFile('./composedEmails.html', htmlOut, function(err) {
+		if (err) return console.log(err);
+		console.log("File written successful to composedEmails.html");
+		return htmlOut;
+	});
 }
 
-function buildEmail_REPLACE_METHOD() {
-	var emailArray = [];
-	var firstName = /FIRST_NAME/gi;
-	var monthsSince = /NUM_MONTHS_SINCE_CONTACT/gi;
-
-	for (var i = 0; i < contactArray.length; i++) {
-		console.log();
-		console.log();
-		var newName = (emailHTML.replace(firstName, contactArray[i].firstName));
-		var newNameMonths = emailHTML.replace(monthsSince, contactArray[i].numMonthsSinceContact);
-		console.log(newNameMonths);
-		emailArray.push(newNameMonths);
-	};
+function getTimeElapsed(time) {
+	var oneDayInMs = 86400000;
+	var now = Date.now();
+	var then = Date.parse(time);
+	var diff = now - then;
+	return diff / oneDayInMs;
 }
-
-// Main function
-function main() {
-	buildEmailEJS();
-	//return contactArray;
-}
-
-main();
-
