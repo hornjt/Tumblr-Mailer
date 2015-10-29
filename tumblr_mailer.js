@@ -33,6 +33,7 @@ client.posts(blogName, function(err, data){
 					href: data.posts[i].short_url,
 					title: data.posts[i].title
 				};
+				console.log(recentPosts);
 				postObjs.push(recentPosts);
 
 				// var singlePost = data.posts[i].body.slice(3,-4);
@@ -45,11 +46,12 @@ client.posts(blogName, function(err, data){
 	// Executed at the end of Tumblr API for sync issues while constructing contact
 	contactArray = mergeCsvContacts.csvParse(csvFile, postObjs);
 	htmlList = buildEmailEJS();
+	console.log(htmlList);
 
+	// Add the generated emails to the each persons contact object
 	for (var i = 0; i < contactArray.length; i++) {
 		contactArray[i].htmlEmail = htmlList[i];
 	};
-	console.log(contactArray);
     buildMandrillEmails();
 });
 
@@ -60,7 +62,8 @@ function buildMandrillEmails() {
 	var fromName = "Jon Horn";
 	var fromEmail = "jhorn85@gmail.com";
 	var subject = "Check out my blog";
-	var message = htmlList;
+	var message = htmlList[0];
+	mandrill.sendEmail(toName, toEmail, fromName, fromEmail, subject, message);
 /*	console.log(toName);
 	console.log(toEmail);
 	console.log(fromName);
